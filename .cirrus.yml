@@ -1,0 +1,14 @@
+container:
+  image: fedora:latest
+
+env:
+  GOPATH: ~/go
+  GOPROXY: https://proxy.golang.org
+
+clone_task:
+  clone_podman_script: mkdir -p $GOPATH/github.com/containers && cd $GOPATH/github.com/containers && git clone https://github.com/containers/libpod.git
+  clone_gitlab_runner_script: mkdir -p $GOPATH/gitlab.com && cd $GOPATH/gitlab.com && git clone https://gitlab.com/gitlab-org/gitlab-runner.git
+
+ci_task:
+  install_libpod_packages_script: cd $GOPATH/github.com/containers && sudo make package-install
+  build_podman: cd $GOPATH/github.com/containers && make binaries
