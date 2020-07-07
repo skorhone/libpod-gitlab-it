@@ -4,11 +4,16 @@ container:
 env:
   GOPATH: ~/go
   GOPROXY: https://proxy.golang.org
+  DOCKER_HOST: tcp://127.0.0.1:1212
 
-clone_task:
+test_task:
+  install_pkg_script: sudo yum -y install git ngrep make
   clone_podman_script: mkdir -p $GOPATH/github.com/containers && cd $GOPATH/github.com/containers && git clone https://github.com/containers/libpod.git
   clone_gitlab_runner_script: mkdir -p $GOPATH/gitlab.com && cd $GOPATH/gitlab.com && git clone https://gitlab.com/gitlab-org/gitlab-runner.git
 
-ci_task:
-  install_libpod_packages_script: cd $GOPATH/github.com/containers && sudo make package-install
-  build_podman: cd $GOPATH/github.com/containers && make binaries
+  build_podman_script: cd $GOPATH/github.com/containers/libpod && sudo make package-install && make binaries
+
+  start_podman_ngrep_background_script: sudo ngrep -d lo -W byline port 1212
+  start_podman_service_background_script: cd GOPATH/github.com/containers/libpod && sudo bin/podman --log-level debug system service -t 0 tcp:localhost:1212
+
+  
