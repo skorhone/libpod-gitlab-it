@@ -8,7 +8,7 @@ env:
   STORAGE_DRIVER: vfs
 
 test_task:
-  install_pkg_script: echo $DOCKER_HOST && ls /var/run && sudo yum -y install git ngrep make conmon runc
+  install_pkg_script: sudo yum -y install git ngrep make conmon runc containers-common
   clone_podman_script: mkdir -p $GOPATH/src/github.com/containers && cd $GOPATH/src/github.com/containers && git clone https://github.com/containers/libpod.git
   clone_gitlab_runner_script: mkdir -p $GOPATH/src/gitlab.com && cd $GOPATH/src/gitlab.com && git clone https://gitlab.com/gitlab-org/gitlab-runner.git
 
