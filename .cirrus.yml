@@ -5,6 +5,7 @@ env:
   GOPATH: ~/go
   GOPROXY: https://proxy.golang.org
   DOCKER_HOST: tcp://127.0.0.1:1212
+  STORAGE_DRIVER: vfs
 
 test_task:
   install_pkg_script: sudo yum -y install git ngrep make
