@@ -8,17 +8,17 @@ env:
   STORAGE_DRIVER: vfs
 
 test_task:
-  install_pkg_script: sudo yum -y install git ngrep make conmon runc containers-common
-  configure_containers_script: cat /etc/containers/storage.conf && exit 1
+  install_pkg_script: yum -y install git ngrep make conmon runc containers-common
+  configure_containers_script: sed -i.bak 's/driver = "overlay"/driver = "vfs"/g' /etc/containers/storage.conf && cat /etc/containers/storage.conf && exit 1
   
   clone_podman_script: mkdir -p $GOPATH/src/github.com/containers && cd $GOPATH/src/github.com/containers && git clone https://github.com/containers/libpod.git
   clone_gitlab_runner_script: mkdir -p $GOPATH/src/gitlab.com && cd $GOPATH/src/gitlab.com && git clone https://gitlab.com/gitlab-org/gitlab-runner.git
 
-  build_podman_script: cd $GOPATH/src/github.com/containers/libpod && sudo yum -y install $(tail -n +3 contrib/dependencies.txt) && make binaries
+  build_podman_script: cd $GOPATH/src/github.com/containers/libpod && yum -y install $(tail -n +3 contrib/dependencies.txt) && make binaries
   create_docker_link_script: ln -s $GOPATH/src/github.com/containers/libpod/bin/podman /usr/bin/docker
 
-  start_podman_ngrep_background_script: sudo ngrep -d lo -W byline port 12121
-  start_podman_service_background_script: sudo docker --log-level debug system service -t 0 tcp:localhost:12121
+  start_podman_ngrep_background_script: ngrep -d lo -W byline port 12121
+  start_podman_service_background_script: docker --log-level debug system service -t 0 tcp:localhost:12121
 
   run_gitlab_runner_tests_script: cd $GOPATH/src/gitlab.com/gitlab-runner/executors/docker && go test -v
 
