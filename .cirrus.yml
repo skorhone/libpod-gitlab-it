@@ -3,6 +3,7 @@ container:
 
 env:
   GOPATH: /home/pman/go
+  GOCACHE: /home/pman/.cache
   GOPROXY: https://proxy.golang.org
   DOCKER_HOST: tcp://127.0.0.1:12121
   STORAGE_DRIVER: vfs
