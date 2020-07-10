@@ -25,5 +25,5 @@ test_task:
 
   test_verify_podman_service_script: sleep 10 && curl http://localhost:12121/images/json
 
-  run_gitlab_runner_tests_script: su -w GOPATH,GOCACHE,GOPROXY,DOCKER_HOST,STORAGE_DRIVER - pman -c 'cd $GOPATH/src/gitlab.com/gitlab-runner/executors/docker && go test -v'
+  run_gitlab_runner_tests_script: su -w GOPATH,GOCACHE,GOPROXY,STORAGE_DRIVER - pman -c 'cd $GOPATH/src/gitlab.com/gitlab-runner/executors/docker && go test -v'
   
