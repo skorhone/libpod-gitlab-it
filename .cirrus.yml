@@ -2,13 +2,28 @@ container:
   image: fedora:latest
 
 env:
-  GOPATH: ~/go
+  GOPATH: /home/pman/go
+  GOCACHE: /home/pman/.cache
   GOPROXY: https://proxy.golang.org
+  DOCKER_HOST: tcp://127.0.0.1:12121
+  STORAGE_DRIVER: vfs
 
-clone_task:
-  clone_podman_script: mkdir -p $GOPATH/github.com/containers && cd $GOPATH/github.com/containers && git clone https://github.com/containers/libpod.git
-  clone_gitlab_runner_script: mkdir -p $GOPATH/gitlab.com && cd $GOPATH/gitlab.com && git clone https://gitlab.com/gitlab-org/gitlab-runner.git
+test_task:
+  add_user_script: useradd pman
+  install_pkg_script: yum -y install git ngrep make conmon runc containers-common
+  configure_containers_script: sed -i.bak 's/driver = "overlay"/driver = "vfs"/g' /etc/containers/storage.conf && echo "pman:1000000:65536" >> /etc/subuid && echo "pman:1000000:65536" >> /etc/subgid
+  
+  clone_podman_script: su -p pman -c 'mkdir -p $GOPATH/src/github.com/containers && cd $GOPATH/src/github.com/containers && git clone https://github.com/containers/libpod.git'
+  clone_gitlab_runner_script: su -p pman -c 'mkdir -p $GOPATH/src/gitlab.com && cd $GOPATH/src/gitlab.com && git clone https://gitlab.com/gitlab-org/gitlab-runner.git'
 
-ci_task:
-  install_libpod_packages_script: cd $GOPATH/github.com/containers && sudo make package-install
-  build_podman: cd $GOPATH/github.com/containers && make binaries
+  install_podman_dep_script: yum -y install $(tail -n +3 $GOPATH/src/github.com/containers/libpod/contrib/dependencies.txt)
+  build_podman_script: su -p pman -c 'cd $GOPATH/src/github.com/containers/libpod && make binaries'
+  create_docker_link_script: ln -s $GOPATH/src/github.com/containers/libpod/bin/podman /usr/bin/docker
+
+  start_podman_ngrep_background_script: ngrep -d lo -W byline port 12121
+  start_podman_service_background_script: su - pman -c "docker info && docker --storage-driver=$STORAGE_DRIVER --log-level debug system service -t 0 tcp:localhost:12121"
+
+  test_verify_podman_service_script: sleep 10 && curl http://localhost:12121/images/json
+
+  run_gitlab_runner_tests_script: su -w DOCKER_HOST,GOPATH,GOCACHE,GOPROXY,STORAGE_DRIVER - pman -c 'cd $GOPATH/src/gitlab.com/gitlab-runner/executors/docker && go test -v'
+  
