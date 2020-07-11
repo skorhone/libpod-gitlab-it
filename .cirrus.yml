@@ -21,7 +21,7 @@ test_task:
   create_docker_link_script: ln -s $GOPATH/src/github.com/containers/libpod/bin/podman /usr/bin/docker
 
   start_podman_ngrep_background_script: ngrep -d lo -W byline port 12121
-  start_podman_service_background_script: docker info && docker --network=slirp4nets --storage-driver=$STORAGE_DRIVER --log-level debug system service -t 0 tcp:localhost:12121
+  start_podman_service_background_script: docker info && docker --storage-driver=$STORAGE_DRIVER --log-level debug system service -t 0 tcp:localhost:12121
 
   test_verify_podman_service_script: sleep 10 && curl http://localhost:12121/images/json
 
